@@ -1,0 +1,16 @@
+<h1>Redis Data</h1>
+
+<div class="container">
+  <% if @redis_data.any? %>
+    <ul class="list-group">
+      <% @redis_data.each do |data| %>
+        <li class="list-group-item">
+          <strong>Key:</strong> <%= data[:key] %> <br>
+          <strong>Value:</strong> <%= data[:value] %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p>No data found in Redis.</p>
+  <% end %>
+</div>

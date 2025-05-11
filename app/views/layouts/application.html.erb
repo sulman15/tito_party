@@ -10,9 +10,20 @@
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <style>
+      .header {
+        background-color: #008080;
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+    </style>
   </head>
 
   <body class="bg-gray-100">
+    <div class="header">
+      <h1>Vendr</h1>
+    </div>
     <%= render 'layouts/header' %>
     <main class="container mx-auto mt-28 px-5 flex">
       <%= yield %>
