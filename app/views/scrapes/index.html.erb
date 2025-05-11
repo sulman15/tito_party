@@ -1,0 +1,26 @@
+<!-- app/views/scrapes/index.html.erb -->
+<h1>Scraped Data</h1>
+
+<div class="container">
+  <div class="row">
+    <% @data.each do |item| %>
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title"><%= item[:heading] %></h5>
+          </div>
+          <div class="card-body">
+            <p class="card-text"><%= item[:description] %></p> <!-- Optional description -->
+            <ul class="list-group">
+              <% item[:subheadings].each do |subheading| %>
+                <li class="list-group-item">
+                  <a href="<%= subheading[:href] %>" target="_blank"><%= subheading[:title] %></a>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

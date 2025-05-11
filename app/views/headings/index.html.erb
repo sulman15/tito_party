@@ -1,0 +1,25 @@
+<!-- app/views/headings/index.html.erb -->
+<h1>Headings and Subheadings</h1>
+
+<div class="container">
+  <div class="row">
+    <% @headings.each do |heading| %>
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title"><%= heading.title %></h2>
+          </div>
+          <div class="card-body">
+            <ul class="list-group">
+              <% heading.subheadings.each do |subheading| %>
+                <li class="list-group-item">
+                  <a href="<%= subheading.href %>" target="_blank"><%= subheading.title %></a>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
