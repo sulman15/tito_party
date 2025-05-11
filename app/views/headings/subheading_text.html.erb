@@ -11,6 +11,8 @@
           <div class="card-body">
             <% if card[:logo] %>
               <img src="<%= card[:logo] %>" alt="Company Logo" class="img-fluid mb-2" />
+            <% else %>
+              <p>No logo available</p>
             <% end %>
             <p class="card-text"><strong>Company:</strong> <%= card[:company_name] %></p>
             <p class="card-text"><strong>Details:</strong> <%= card[:details] %></p>
