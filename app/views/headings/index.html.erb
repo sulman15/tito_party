@@ -13,7 +13,7 @@
             <ul class="list-group">
               <% heading.subheadings.each do |subheading| %>
                 <li class="list-group-item">
-                  <a href="<%= subheading.href %>" target="_blank"><%= subheading.title %></a>
+                  <%= link_to subheading.title, subheading_text_path(url: subheading.href), target: "_blank" %>
                 </li>
               <% end %>
             </ul>

@@ -5,4 +5,5 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   get 'scrapes', to: 'scrapes#index'
   resources :headings, only: [:index]
+  get 'subheading_text', to: 'headings#subheading_text'
 end
