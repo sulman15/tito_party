@@ -120,8 +120,8 @@ class HumanResourcesCsvExporter
     driver.manage.timeouts.implicit_wait = 10 # seconds
 
     # Wait for the product cards to load
-    wait = Selenium::WebDriver::Wait.new(timeout: 60) # seconds
-    wait.until { driver.find_element(css: '._card_j928a_9') } # Adjust the selector as needed
+    wait = Selenium::WebDriver::Wait.new(timeout: 120) # seconds
+    # wait.until { driver.find_element(css: '._card_j928a_9') } # Adjust th÷e selector as needed
 
     # Get the page source and parse it with Nokogiri
     page_source = driver.page_source
@@ -131,14 +131,14 @@ class HumanResourcesCsvExporter
     doc = Nokogiri::HTML(page_source)
 
     # Extract product data using the correct CSS selectors
-    products = doc.css('._card_j928a_9._card_1u7u9_1._cardLink_1q928_1').map do |card|
+    products = doc.css('a._card_j928a_9._card_1u7u9_1._cardLink_1q928_1').map do |card|
       {
         title: card.at_css('.rt-Text.rt-r-size-4.rt-r-weight-bold.rt-truncate._cardTitle_j928a_13')&.text&.strip,
-        price: card.at_css('.rt-Text.rt-r-size-2.rt-truncate')&.text&.strip, # Adjust this selector if necessary
+        price: card.at_css('.rt-Text.rt-r-size-2.rt-truncate')&.text&.strip,
         details: card.at_css('.rt-Text.rt-r-size-2._description_j928a_18')&.text&.strip,
-        href: card.at_css('a')&.[]('href'), # Get the href from the anchor tag
-        image: card.at_css('.rt-AvatarImage')&.[]('src'), # Get the logo src
-        subcategory: subcategory_title # Include the subcategory title
+        href: "https://www.vendr.com#{card['href']}", # Extract href directly from the anchor tag
+        image: card.at_css('.rt-AvatarImage')&.[]('src'),
+        subcategory: subcategory_title
       }
     end.compact # Remove nil values
 
