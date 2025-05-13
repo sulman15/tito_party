@@ -39,7 +39,7 @@ class CategoryScraper
       }
     end
 
-    # Return the extracted data
+    Rails.logger.info "Scraped data: #{data.inspect}"
     data
   end
 
@@ -71,6 +71,7 @@ class CategoryScraper
       }
     end
 
+    Rails.logger.info "Scraped products: #{cards.inspect}"
     cards
   end
 end

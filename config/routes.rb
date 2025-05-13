@@ -13,4 +13,19 @@ Rails.application.routes.draw do
   get 'scrapes', to: 'scrapes#index'
   resources :headings, only: [:index]
   get 'subheading_text', to: 'headings#subheading_text'
+
+  resources :categories do
+    resources :subcategories
+  end
+
+  resources :subcategories do
+    resources :products
+  end
+
+  resources :products
+
+  get 'scrape_categories', to: 'home#scrape_categories'
+  get 'scrape_products', to: 'home#scrape_products'
+  get 'export_csv', to: 'home#export_csv'
+  get 'export_human_resources_csv', to: 'home#export_human_resources_csv'
 end

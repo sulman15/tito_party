@@ -1,0 +1,12 @@
+<h1><%= @product.title %></h1>
+
+<p><strong>Company:</strong> <%= @product.company_name %></p>
+<p><strong>Description:</strong> <%= @product.description %></p>
+<% if @product.icon.present? %>
+  <img src="<%= @product.icon %>" alt="Product Icon" class="img-fluid mb-2" />
+<% else %>
+  <p>No icon available</p>
+<% end %>
+<p><strong>URL:</strong> <%= link_to @product.url, @product.url, target: "_blank" %></p>
+
+<%= link_to 'Back to Products', products_path, class: 'btn btn-secondary' %>

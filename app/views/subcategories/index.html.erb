@@ -1,0 +1,18 @@
+<h1>Subcategories</h1>
+
+<div class="container">
+  <div class="row">
+    <% @subcategories.each do |subcategory| %>
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title"><%= subcategory.title %></h5>
+          </div>
+          <div class="card-body">
+            <%= link_to 'View Products', subcategory_path(subcategory), class: 'btn btn-primary' %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

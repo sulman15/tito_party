@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_05_11_065007) do
+ActiveRecord::Schema[7.0].define(version: 2025_05_11_105008) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -20,6 +20,14 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_11_065007) do
     t.text "details"
     t.string "href"
     t.string "logo"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "categories", force: :cascade do |t|
+    t.string "title"
+    t.string "url"
+    t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -38,11 +46,32 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_11_065007) do
     t.index ["purchase_request_id"], name: "index_items_on_purchase_request_id"
   end
 
+  create_table "products", force: :cascade do |t|
+    t.string "title"
+    t.string "url"
+    t.string "icon"
+    t.string "company"
+    t.text "description"
+    t.bigint "subcategory_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subcategory_id"], name: "index_products_on_subcategory_id"
+  end
+
   create_table "purchase_requests", force: :cascade do |t|
     t.string "title"
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "subcategories", force: :cascade do |t|
+    t.string "title"
+    t.string "url"
+    t.bigint "category_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_subcategories_on_category_id"
   end
 
   create_table "subheadings", force: :cascade do |t|
@@ -84,6 +113,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_11_065007) do
   end
 
   add_foreign_key "items", "purchase_requests"
+  add_foreign_key "products", "subcategories"
+  add_foreign_key "subcategories", "categories"
   add_foreign_key "subheadings", "headings"
   add_foreign_key "vendor_items", "items"
   add_foreign_key "website_contents", "websites"

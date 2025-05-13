@@ -1,0 +1,10 @@
+<h1><%= @subcategory.title %></h1>
+
+<h2>Products</h2>
+<ul>
+  <% @products.each do |product| %>
+    <li><%= link_to product.title, product_path(product) %></li>
+  <% end %>
+</ul>
+
+<%= link_to 'Back to Subcategories', subcategories_path, class: 'btn btn-secondary' %>

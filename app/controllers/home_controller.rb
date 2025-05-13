@@ -7,6 +7,60 @@ class HomeController < ApplicationController
     redirect_to root_path, notice: 'Sync process started!'
   end
 
+  def scrape_categories
+    scraper = CategoryScraper.new
+    categories_data = scraper.scrape('https://www.vendr.com/categories') # Replace with your URL
+
+    categories_data.each do |category_data|
+      category = Category.find_or_initialize_by(title: category_data[:title])
+      category.url = category_data[:url]
+      category.description = category_data[:description]
+      category.save
+
+      category_data[:subheadings].each do |subheading|
+        subcategory = category.subcategories.find_or_initialize_by(title: subheading[:title])
+        subcategory.url = subheading[:href]
+        subcategory.save
+      end
+    end
+
+    redirect_to root_path, notice: 'Categories and subcategories have been scraped and saved!'
+  end
+
+  def scrape_products
+    # Assuming you want to scrape products for all subcategories
+    Subcategory.find_each do |subcategory|
+      scraper = CategoryScraper.new
+      products_data = scraper.scrape_subheading_text(subcategory.url)
+
+      products_data.each do |product_data|
+        product = subcategory.products.find_or_initialize_by(title: product_data[:heading])
+        product.url = product_data[:href]
+        product.icon = product_data[:logo]
+        product.company = product_data[:company_name]
+        product.description = product_data[:details]
+        product.save
+      end
+    end
+
+    redirect_to root_path, notice: 'Products have been scraped and saved!'
+  end
+
+  def export_csv
+    csv_data = CsvExporter.export_categories_with_subcategories_and_products
+    send_data csv_data, filename: "categories_subcategories_products.csv"
+  end
+
+  def export_human_resources_csv
+    csv_data = HumanResourcesCsvExporter.export_human_resources_data
+
+    if csv_data
+      send_data csv_data, filename: "human_resources_data.csv"
+    else
+      redirect_to root_path, alert: 'Human Resources category not found.'
+    end
+  end
+
   private
 
   def scrape_and_store_subheading_data(url)

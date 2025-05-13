@@ -1,0 +1,12 @@
+<h1><%= @category.title %></h1>
+
+<p><strong>Description:</strong> <%= @category.description %></p>
+
+<h2>Subcategories</h2>
+<ul>
+  <% @subcategories.each do |subcategory| %>
+    <li><%= link_to subcategory.title, subcategory_path(subcategory) %></li>
+  <% end %>
+</ul>
+
+<%= link_to 'Back to Categories', categories_path, class: 'btn btn-secondary' %>

@@ -2,21 +2,21 @@
 
 <div class="container">
   <div class="row">
-    <% @cards.each do |card| %>
+    <% @products.each do |product| %>
       <div class="col-md-4 mb-4">
         <div class="card">
           <div class="card-header">
-            <h5 class="card-title"><%= card[:heading] %></h5>
+            <h5 class="card-title"><%= product.title %></h5>
           </div>
           <div class="card-body">
-            <% if card[:logo] %>
-              <img src="<%= card[:logo] %>" alt="Company Logo" class="img-fluid mb-2" />
+            <% if product.icon.present? %>
+              <img src="<%= product.icon %>" alt="Company Logo" class="img-fluid mb-2" />
             <% else %>
               <p>No logo available</p>
             <% end %>
-            <p class="card-text"><strong>Company:</strong> <%= card[:company_name] %></p>
-            <p class="card-text"><strong>Details:</strong> <%= card[:details] %></p>
-            <a href="<%= card[:href] %>" target="_blank">View More</a>
+            <p class="card-text"><strong>Company:</strong> <%= product.company_name %></p>
+            <p class="card-text"><strong>Details:</strong> <%= product.description %></p>
+            <a href="<%= product.url %>" target="_blank">View More</a>
           </div>
         </div>
       </div>
