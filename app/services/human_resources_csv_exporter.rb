@@ -21,11 +21,18 @@ class HumanResourcesCsvExporter
     # Extract subcategories and their product data
     subcategories = extract_subcategories(doc, comparison_text)
 
-    # Scrape products for each subcategory
-    products_data = scrape_products_for_subcategories(subcategories)
+    # Only process the first subcategory if it exists
+    return unless subcategories.any?
+
+    # Scrape products for the first subcategory only
+    products_data = scrape_products_for_subcategories([subcategories.first])
 
     # Write the scraped product data to a CSV file
     write_to_csv(products_data)
+
+    # Scrape product details from the URLs in the CSV
+    product_urls = products_data.map { |product| product[:href] }
+    product_details = scrape_product_details(product_urls)
 
     Rails.logger.info "Scraped product data saved to products_data.csv"
   end
@@ -60,6 +67,78 @@ class HumanResourcesCsvExporter
 
     Rails.logger.info "Scraped products: #{cards.inspect}"
     cards
+  end
+
+  def scrape_product_details(product_urls)
+    product_details = []
+
+    # Limit to the first 10 products
+    product_urls.first(10).each do |url|
+      driver = initialize_driver
+      navigate_to_url(driver, url)
+
+      # Set implicit wait
+      driver.manage.timeouts.implicit_wait = 10 # seconds
+
+      # Get the page source and parse it with Nokogiri
+      page_source = driver.page_source
+      driver.quit
+
+      # Parse the HTML with Nokogiri
+      doc = Nokogiri::HTML(page_source)
+
+      # Extract the desired data
+      detail_href = doc.at_css('.rt-Flex.rt-r-display-none.xs\\:rt-r-display-flex.rt-r-fd-row.rt-r-gap-1 a.rt-Text.rt-reset.rt-Link.rt-underline-auto')&.[]('href')
+
+      # Extract additional details from the new class
+      range_average_div = doc.at_css('.rt-Flex._rangeAverage_118fo_42')
+      average_text = range_average_div&.at_css('.rt-Text.rt-r-weight-bold')&.text&.strip
+
+      # Check if range_average_div is nil before accessing it
+      if range_average_div
+        additional_text = range_average_div.text.strip # Get all text within the div
+      else
+        Rails.logger.warn "No range average div found for URL: #{url}"
+        additional_text = nil
+      end
+
+      # Extract lowest and highest values
+      lowest = doc.at_css('.rt-Grid.rt-r-gtc.rt-r-ai-center.rt-r-mt._rangeSlider_118fo_13 .v-fw-600.v-fs-12')&.text&.strip
+      highest = doc.at_css('.rt-Grid.rt-r-gtc.rt-r-ai-center.rt-r-mt._rangeSlider_118fo_13 ._rangeSliderLastNumber_118fo_38.v-fw-600.v-fs-12')&.text&.strip
+
+      # Extract purchase data text
+      purchase_data_text = doc.at_css('.rt-Flex.rt-r-fd-column.rt-r-gap-1._averageBuyersPay_118fo_66 .v-fs-12')&.text&.strip
+
+      # Extract review heading
+      review_heading = doc.at_css('.rt-Flex.rt-r-ai-center.rt-r-jc-space-between h2.rt-Heading.rt-r-size-6')&.text&.strip
+
+      # Extract company size and review
+      company_size_divs = doc.css('.rt-Flex.rt-r-fd-column.rt-r-ai-center.rt-r-gap-5 .rt-Flex.rt-r-fd-column.rt-r-gap-5.rt-r-w')
+      company_size = company_size_divs.first&.at_css('.rt-Text.rt-r-size-1')&.text&.strip
+      review = company_size_divs.first&.at_css('.rt-Text.rt-r-size-4.rt-r-weight-bold')&.text&.strip
+
+      # Fetch all reviews from the specified class
+      reviews = doc.css('.rt-Flex.rt-r-fd-column.rt-r-gap-5.rt-r-w .rt-Text.rt-r-size-4.rt-r-weight-bold').map do |review_span|
+        review_span.text.strip
+      end
+
+      # Store the details in a hash
+      product_details << {
+        detail_href: detail_href ? "#{detail_href}" : nil, # Concatenate the base URL with the href
+        average_text: average_text, # Extracted text from the span
+        additional_text: additional_text, # Additional text from the div
+        lowest: lowest, # Lowest value
+        highest: highest, # Highest value
+        purchase_data_text: purchase_data_text, # New purchase data text
+        review_heading: review_heading, # New review heading
+        company_size: company_size, # New company size
+        # review: review, # New review
+        reviews: reviews # Store all reviews as an array
+      }
+    end
+
+    Rails.logger.info "Scraped product details: #{product_details.inspect}"
+    product_details
   end
 
   private
@@ -105,8 +184,9 @@ class HumanResourcesCsvExporter
     products_data = []
 
     subcategories.each do |subcategory|
+      # Scrape products and limit to the first 10 products
       products = scrape_products(subcategory[:href], subcategory[:title])
-      products_data.concat(products) # Combine all products into a single array
+      products_data.concat(products.first(10)) # Limit to the first 10 products
     end
 
     products_data
