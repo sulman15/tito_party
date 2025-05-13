@@ -28,4 +28,5 @@ Rails.application.routes.draw do
   get 'scrape_products', to: 'home#scrape_products'
   get 'export_csv', to: 'home#export_csv'
   get 'export_human_resources_csv', to: 'home#export_human_resources_csv'
+  get 'scrape_human_resources', to: 'home#scrape_human_resources', as: 'scrape_human_resources'
 end

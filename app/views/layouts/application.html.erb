@@ -26,6 +26,11 @@
     </div>
     <%= render 'layouts/header' %>
     <main class="container mx-auto mt-28 px-5 flex">
+      <% if flash[:notice] %>
+        <div class="alert alert-success">
+          <%= flash[:notice] %>
+        </div>
+      <% end %>
       <%= yield %>
     </main>
   </body>

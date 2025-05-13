@@ -52,12 +52,30 @@ class HomeController < ApplicationController
   end
 
   def export_human_resources_csv
-    csv_data = HumanResourcesCsvExporter.export_human_resources_data
+  #   csv_data = HumanResourcesCsvExporter.export_human_resources_data
 
-    if csv_data
-      send_data csv_data, filename: "human_resources_data.csv"
+  #   if csv_data
+  #     send_data csv_data, filename: "human_resources_data.csv"
+  #   else
+  #     redirect_to root_path, alert: 'Human Resources category not found.'
+  #   end
+  end
+
+  def scrape_human_resources
+    exporter = HumanResourcesCsvExporter.new
+    url = "https://www.vendr.com/categories" # Replace with the actual URL
+    comparison_text = "Human Resources" # Replace with the actual comparison text
+
+    # Call the scrape_all method to perform the scraping
+    exporter.scrape_all(url, comparison_text)
+
+    # Check if the CSV file was created successfully
+    csv_file_path = "products_data.csv"
+    if File.exist?(csv_file_path)
+      send_file csv_file_path, type: 'text/csv', disposition: 'attachment'
     else
-      redirect_to root_path, alert: 'Human Resources category not found.'
+      flash[:alert] = "Failed to create CSV file."
+      redirect_to root_path
     end
   end
 
