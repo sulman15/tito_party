@@ -70,7 +70,7 @@ class HomeController < ApplicationController
     exporter.scrape_all(url, comparison_text)
 
     # Check if the CSV file was created successfully
-    csv_file_path = "products_data.csv"
+    csv_file_path = "product_details.csv"
     if File.exist?(csv_file_path)
       send_file csv_file_path, type: 'text/csv', disposition: 'attachment'
     else

@@ -18,22 +18,23 @@ class HumanResourcesCsvExporter
     # Parse the HTML with Nokogiri
     doc = Nokogiri::HTML(page_source)
 
-    # Extract subcategories and their product data
+    # Extract subcategories
     subcategories = extract_subcategories(doc, comparison_text)
 
-    # Only process the first subcategory if it exists
-    return unless subcategories.any?
+    # Return if no subcategories found
+    return if subcategories.empty?
 
-    # Scrape products for the first subcategory only
-    products_data = scrape_products_for_subcategories([subcategories.first])
+    # Scrape products for all subcategories
+    products_data = scrape_products_for_subcategories(subcategories)
 
     # Write the scraped product data to a CSV file
-    write_to_csv(products_data)
+    # write_to_csv(products_data)
 
     # Scrape product details from the URLs in the CSV
     product_urls = products_data.map { |product| product[:href] }
     product_details = scrape_product_details(product_urls)
 
+    write_to_csv(product_details)
     Rails.logger.info "Scraped product data saved to products_data.csv"
   end
 
@@ -73,7 +74,7 @@ class HumanResourcesCsvExporter
     product_details = []
 
     # Limit to the first 10 products
-    product_urls.first(10).each do |url|
+    product_urls.each do |url|
       driver = initialize_driver
       navigate_to_url(driver, url)
 
@@ -184,9 +185,9 @@ class HumanResourcesCsvExporter
     products_data = []
 
     subcategories.each do |subcategory|
-      # Scrape products and limit to the first 10 products
+      # Scrape products for each subcategory
       products = scrape_products(subcategory[:href], subcategory[:title])
-      products_data.concat(products.first(10)) # Limit to the first 10 products
+      products_data.concat(products) # Collect all products
     end
 
     products_data
@@ -198,10 +199,6 @@ class HumanResourcesCsvExporter
 
     # Set implicit wait
     driver.manage.timeouts.implicit_wait = 10 # seconds
-
-    # Wait for the product cards to load
-    wait = Selenium::WebDriver::Wait.new(timeout: 120) # seconds
-    # wait.until { driver.find_element(css: '._card_j928a_9') } # Adjust th÷e selector as needed
 
     # Get the page source and parse it with Nokogiri
     page_source = driver.page_source
@@ -226,23 +223,47 @@ class HumanResourcesCsvExporter
     products
   end
 
-  def write_to_csv(products_data)
-    Rails.logger.info "Products data to write: #{products_data.inspect}"
+  # def write_to_csv(products_data)
+  #   Rails.logger.info "Products data to write: #{products_data.inspect}"
 
-    CSV.open("products_data.csv", "wb") do |csv|
+  #   CSV.open("products_data.csv", "wb") do |csv|
+  #     # Add headers
+  #     csv << ["Product Title", "Price", "Details", "Product URL", "Image URL", "Subcategory"]
+  #     Rails.logger.info "Writing products data to CSV #{products_data.inspect}"
+  #     products_data.each do |product|
+  #       csv << [
+  #         product[:title],
+  #         product[:price],
+  #         product[:details],
+  #         product[:href],
+  #         product[:image],
+  #         product[:subcategory] # Include the subcategory title
+  #       ]
+  #     end
+  #   end
+  # end
+
+  def write_to_csv(product_details)
+    Rails.logger.info "Product details to write: #{product_details.inspect}"
+
+    CSV.open("product_details.csv", "wb") do |csv|
       # Add headers
-      csv << ["Product Title", "Price", "Details", "Product URL", "Image URL", "Subcategory"]
-      Rails.logger.info "Writing products data to CSV #{products_data.inspect}"
-      products_data.each do |product|
+      csv << ["Detail URL", "Average Text", "Additional Text", "Lowest", "Highest", "Purchase Data Text", "Review Heading", "Company Size", "All Reviews"]
+
+      product_details.each do |product|
         csv << [
-          product[:title],
-          product[:price],
-          product[:details],
-          product[:href],
-          product[:image],
-          product[:subcategory] # Include the subcategory title
+          product[:detail_href],
+          product[:average_text],
+          product[:additional_text],
+          product[:lowest],
+          product[:highest],
+          product[:purchase_data_text],
+          product[:review_heading],
+          product[:company_size],
+          product[:reviews].join(", ")
         ]
       end
     end
   end
+  
 end
